@@ -1,17 +1,15 @@
 ﻿using System;
+using System.Threading;
 
 class MainClass
 {
 	public static void Main ()
 	{
-		var g = new Game (10, 10);
+		var g = new Game (40, 40, 0.4);
 		while (true)
 		{
 			GameConsolePrinter.Print (g);
-			Console.WriteLine ("Enter para continuar. Q para salir.");
-			if (Console.ReadLine () == "Q")
-				break;
-
+			Thread.Sleep (500);
 			g.GoNextState ();
 		}
 	}

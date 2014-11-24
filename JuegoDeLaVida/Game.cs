@@ -18,11 +18,11 @@ public class Game
 
 	// Constructor
 
-	public Game (int sizeX, int sizeY)
+	public Game (int sizeX, int sizeY, double randomLimit)
 	{
 		this.SizeX = sizeX;
 		this.SizeY = sizeY;
-		this.GenerateRandomMatrix ();
+		this.GenerateRandomMatrix (randomLimit);
 	}
 
 
@@ -57,11 +57,11 @@ public class Game
 
 	// Private methods
 
-	private void GenerateRandomMatrix ()
+	private void GenerateRandomMatrix (double randomLimit)
 	{
 		var random = new Random ();
 		this.matrix = Enumerable.Range (1, this.SizeX * this.SizeY)
-			.Select ((x) => random.NextDouble () < 0.20)
+			.Select ((x) => random.NextDouble () <= randomLimit)
 			.ToArray ();
 	}
 }
