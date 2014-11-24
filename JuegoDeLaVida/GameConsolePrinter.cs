@@ -7,7 +7,7 @@ public static class GameConsolePrinter
 		for (int x = 0; x < g.SizeX; x++)
 		{
 			for (int y = 0; y < g.SizeY; y++)
-				Console.Write ("|{0}", g.Matrix [x + y * g.SizeX] ? "X" : " ");
+				Console.Write ("|{0}", g.GetValue (x, y) ? "X" : " ");
 			Console.WriteLine ("|");
 		}
 	}

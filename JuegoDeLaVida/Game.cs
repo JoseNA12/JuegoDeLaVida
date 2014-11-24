@@ -3,9 +3,14 @@ using System.Linq;
 
 public class Game
 {
+	// Fields
+
+	private bool[] matrix;
+
+
+
 	// Properties
 
-	public bool[] Matrix { get; private set; }
 	public int SizeX { get; private set; }
 	public int SizeY { get; private set; }
 
@@ -24,24 +29,27 @@ public class Game
 
 	// Methods
 
+	public bool GetValue (int x, int y)
+	{
+		return this.matrix [x + y * this.SizeX];
+	}
+
 	public void GoNextState ()
 	{
-		this.Matrix =
-			(from x in this.Matrix.Select ((val, index) => new
-			{
-				val = val,
-				column = index % this.SizeX,
-				row = index / this.SizeX
-			})
-			let livingNeighbours = (from col in Enumerable.Range (x.column - 1, 3)
-				from row in Enumerable.Range (x.row - 1, 3)
-				where col >= 0 && col < this.SizeX
-				where row >= 0 && row < this.SizeY
-				where col != x.column || row != x.row
-				where this.Matrix [col + row * this.SizeX]
+		this.matrix = (
+			from y in Enumerable.Range (0, this.SizeY)
+			from x in Enumerable.Range (0, this.SizeX)
+			let val = this.GetValue (x, y)
+			let livingNeighbours = (
+				from x2 in Enumerable.Range (x - 1, 3)
+				from y2 in Enumerable.Range (y - 1, 3)
+				where x2 >= 0 && x2 < this.SizeX
+				where y2 >= 0 && y2 < this.SizeY
+				where x2 != x || y2 != y
+				where this.GetValue (x2, y2)
 				select 1).Sum ()
-			select ((x.val && (livingNeighbours == 2 || livingNeighbours == 3))
-				|| (!x.val && livingNeighbours == 3)))
+			select ((val && (livingNeighbours == 2 || livingNeighbours == 3))
+				|| (!val && livingNeighbours == 3)))
 			.ToArray ();
 	}
 
@@ -52,7 +60,7 @@ public class Game
 	private void GenerateRandomMatrix ()
 	{
 		var random = new Random ();
-		this.Matrix = Enumerable.Range (1, SizeX * SizeY)
+		this.matrix = Enumerable.Range (1, this.SizeX * this.SizeY)
 			.Select ((x) => random.NextDouble () < 0.20)
 			.ToArray ();
 	}
