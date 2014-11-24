@@ -48,8 +48,8 @@ public class Game
 				where x2 != x || y2 != y
 				where this.GetValue (x2, y2)
 				select 1).Sum ()
-			select ((val && (livingNeighbours == 2 || livingNeighbours == 3))
-				|| (!val && livingNeighbours == 3)))
+			select ((livingNeighbours == 3)
+				|| (val && livingNeighbours == 2)))
 			.ToArray ();
 	}
 
