@@ -39,7 +39,6 @@ public class Game
 		this.matrix = (
 			from y in Enumerable.Range (0, this.SizeY)
 			from x in Enumerable.Range (0, this.SizeX)
-			let val = this.GetValue (x, y)
 			let livingNeighbours = (
 				from x2 in Enumerable.Range (x - 1, 3)
 				from y2 in Enumerable.Range (y - 1, 3)
@@ -49,7 +48,7 @@ public class Game
 				where this.GetValue (x2, y2)
 				select 1).Sum ()
 			select ((livingNeighbours == 3)
-				|| (val && livingNeighbours == 2)))
+				|| (livingNeighbours == 2 & this.GetValue (x, y))))
 			.ToArray ();
 	}
 
