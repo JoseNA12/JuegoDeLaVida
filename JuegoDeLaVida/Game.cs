@@ -1,24 +1,22 @@
 ﻿using System;
+using System.Linq;
 
 public class Game
 {
-	// Constants
+	// Properties
 
-	private const int sizeX = 10;
-	private const int sizeY = 10;
-
-
-
-	// Fields
-
-	private bool[,] matrix = new bool[sizeX, sizeY];
+	public bool[] Matrix { get; private set; }
+	public int SizeX { get; private set; }
+	public int SizeY { get; private set; }
 
 
 
 	// Constructor
 
-	public Game ()
+	public Game (int sizeX, int sizeY)
 	{
+		this.SizeX = sizeX;
+		this.SizeY = sizeY;
 		this.GenerateRandomMatrix ();
 	}
 
@@ -28,22 +26,23 @@ public class Game
 
 	public void GoNextState ()
 	{
-		bool[,] newMatrix = new bool[sizeX, sizeY];
-		for (int x = 0; x < sizeX; x++)
-			for (int y = 0; y < sizeY; y++)
-				newMatrix[x, y] = this.GetNext (x, y);
-
-		this.matrix = newMatrix;
-	}
-
-	public void Print ()
-	{
-		for (int x = 0; x < sizeX; x++)
-		{
-			for (int y = 0; y < sizeY; y++)
-				Console.Write ("|{0}", this.matrix [x, y] ? "X" : " ");
-			Console.WriteLine ("|");
-		}
+		this.Matrix =
+			(from x in this.Matrix.Select ((val, index) => new
+			{
+				val = val,
+				column = index % this.SizeX,
+				row = index / this.SizeX
+			})
+			let livingNeighbours = (from col in Enumerable.Range (x.column - 1, 3)
+				from row in Enumerable.Range (x.row - 1, 3)
+				where col >= 0 && col < this.SizeX
+				where row >= 0 && row < this.SizeY
+				where col != x.column || row != x.row
+				where this.Matrix [col + row * this.SizeX]
+				select 1).Sum ()
+			select ((x.val && (livingNeighbours == 2 || livingNeighbours == 3))
+				|| (!x.val && livingNeighbours == 3)))
+			.ToArray ();
 	}
 
 
@@ -53,46 +52,8 @@ public class Game
 	private void GenerateRandomMatrix ()
 	{
 		var random = new Random ();
-		for (int x = 0; x < sizeX; x++)
-			for (int y = 0; y < sizeY; y++)
-				this.matrix [x, y] = random.NextDouble () < 0.20;
-	}
-
-	private int GetLivingNeighbours (int x, int y)
-	{
-		return
-			this.GetLivingValue (x - 1, y - 1) +
-			this.GetLivingValue (x + 0, y - 1) +
-			this.GetLivingValue (x + 1, y - 1) +
-			this.GetLivingValue (x - 1, y) +
-			this.GetLivingValue (x + 1, y) +
-			this.GetLivingValue (x - 1, y + 1) +
-			this.GetLivingValue (x + 0, y + 1) +
-			this.GetLivingValue (x + 1, y + 1);
-	}
-
-	private int GetLivingValue (int x, int y)
-	{
-		if (x < 0 || x > sizeX - 1)
-			return 0;
-		if (y < 0 || y > sizeY - 1)
-			return 0;
-
-		return this.matrix [x, y] ? 1 : 0;
-	}
-
-	private bool GetNext (int x, int y)
-	{
-		var alive = this.matrix [x, y];
-		var livingNeighbours = this.GetLivingNeighbours (x, y);
-
-		// Any dead cell with exactly three live neighbours becomes a live cell
-		if (!alive)
-			return (livingNeighbours == 3);
-
-		// Any live cell with less than two live neighbours dies
-		// Any live cell with two or three live neighbours lives on to the next generation
-		// Any live cell with more than three live neighbours dies
-		return (livingNeighbours == 2 || livingNeighbours == 3);
+		this.Matrix = Enumerable.Range (1, SizeX * SizeY)
+			.Select ((x) => random.NextDouble () < 0.20)
+			.ToArray ();
 	}
 }
